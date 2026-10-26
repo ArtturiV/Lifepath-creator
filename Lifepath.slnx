@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Lifepath.Cli/Lifepath.Cli.csproj" />
+    <Project Path="src/Lifepath.Core/Lifepath.Core.csproj" />
   </Folder>
 </Solution>
