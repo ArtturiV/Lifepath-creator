@@ -1,0 +1,17 @@
+{
+  "title": "Broken Lifepath",
+  "startCardId": "birth",
+  "cards": [
+    { "type": "text", "id": "birth", "title": "Birth", "text": "You are born.", "nextCardId": "famly" },
+    { "type": "choice", "id": "family", "title": "Family", "text": "Who raised you?", "options": [] },
+    {
+      "type": "die", "id": "sea", "title": "The Sea", "text": "The sea gives and takes.",
+      "outcomes": [
+        { "min": 1, "max": 3, "nextCardId": "sea" },
+        { "min": 3, "max": 5, "nextCardId": "end" }
+      ]
+    },
+    { "type": "end", "id": "end", "title": "The End", "text": "Fin." },
+    { "type": "end", "id": "end", "title": "Another End", "text": "Fin again." }
+  ]
+}

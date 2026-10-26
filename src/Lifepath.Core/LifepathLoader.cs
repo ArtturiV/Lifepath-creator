@@ -18,6 +18,12 @@ public static class LifepathLoader
         var file = JsonSerializer.Deserialize<LifepathFile>(json, Options)
             ?? throw new JsonException("The lifepath file is empty.");
 
+        var errors = LifepathValidator.Validate(file.StartCardId, file.Cards);
+        if (errors.Count > 0)
+        {
+            throw new LifepathValidationException(errors);
+        }
+
         return new LifepathDefinition(file.Title, file.StartCardId, file.Cards);
     }
 }

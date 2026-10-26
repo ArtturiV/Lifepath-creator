@@ -8,6 +8,15 @@ try
 {
     lifepath = LifepathLoader.FromFile(path);
 }
+catch (LifepathValidationException ex)
+{
+    Console.WriteLine($"'{path}' has {ex.Errors.Count} problem(s):");
+    foreach (var error in ex.Errors)
+    {
+        Console.WriteLine($"  - {error}");
+    }
+    return;
+}
 catch (Exception ex) when (ex is IOException or JsonException)
 {
     Console.WriteLine($"Could not load '{path}': {ex.Message}");
