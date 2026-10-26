@@ -14,25 +14,112 @@ catch (Exception ex) when (ex is IOException or JsonException)
     return;
 }
 
-Console.WriteLine($"=== {lifepath.Title} ===");
-Console.WriteLine($"Starts at: {lifepath.StartCard.Title}");
-Console.WriteLine();
+var run = new LifepathRun(lifepath);
 
-foreach (var card in lifepath.Cards)
+Console.WriteLine($"=== {lifepath.Title} ===");
+
+while (!run.IsFinished)
 {
-    Console.WriteLine($"[{card.Id}] {card.Title}: {Describe(card)}");
+    PrintCard(run.CurrentCard);
+
+    switch (run.CurrentCard)
+    {
+        case TextCard:
+            WaitForEnter("[Press Enter to continue]");
+            run.Continue();
+            break;
+
+        case ChoiceCard choiceCard:
+            run.Choose(AskForChoice(choiceCard));
+            break;
+
+        case DieCard:
+            if (AskForOwnRoll() is int ownRoll)
+            {
+                run.RecordRoll(ownRoll);
+            }
+            else
+            {
+                Console.WriteLine($"You rolled a {run.Roll()}.");
+            }
+            break;
+
+        default:
+            throw new InvalidOperationException($"Unknown card type: {run.CurrentCard.GetType().Name}");
+    }
 }
 
-var seaCard = (DieCard)lifepath.GetCard("sea");
-var roll = Random.Shared.Next(1, 7);
-Console.WriteLine();
-Console.WriteLine($"Rolling for '{seaCard.Title}': {roll} -> {seaCard.NextCardIdFor(roll)}");
+PrintCard(run.CurrentCard);
+PrintSummary(run);
 
-string Describe(Card card) => card switch
+void PrintCard(Card card)
 {
-    TextCard text => $"next -> {text.NextCardId}",
-    ChoiceCard choice => string.Join(", ", choice.Options.Select(o => $"'{o.Label}' -> {o.NextCardId}")),
-    DieCard die => string.Join(", ", die.Outcomes.Select(o => $"{o.Min}-{o.Max} -> {o.NextCardId}")),
-    EndCard => "the end",
-    _ => throw new ArgumentOutOfRangeException(nameof(card)),
-};
+    Console.WriteLine();
+    Console.WriteLine($"--- {card.Title} ---");
+    Console.WriteLine(card.Text);
+}
+
+void WaitForEnter(string prompt)
+{
+    Console.Write(prompt);
+    Console.ReadLine();
+}
+
+int AskForChoice(ChoiceCard card)
+{
+    for (var i = 0; i < card.Options.Count; i++)
+    {
+        Console.WriteLine($"  {i + 1}. {card.Options[i].Label}");
+    }
+
+    while (true)
+    {
+        Console.Write("Choose: ");
+        if (int.TryParse(Console.ReadLine(), out var number) && number >= 1 && number <= card.Options.Count)
+        {
+            return number - 1;
+        }
+
+        Console.WriteLine($"Please enter a number between 1 and {card.Options.Count}.");
+    }
+}
+
+int? AskForOwnRoll()
+{
+    while (true)
+    {
+        Console.Write($"[Press Enter to roll, or type your own roll (1-{DieCard.Sides})] ");
+        var input = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return null;
+        }
+
+        if (int.TryParse(input, out var number) && number is >= 1 and <= DieCard.Sides)
+        {
+            return number;
+        }
+
+        Console.WriteLine($"Please enter a number between 1 and {DieCard.Sides}, or just press Enter.");
+    }
+}
+
+void PrintSummary(LifepathRun run)
+{
+    Console.WriteLine();
+    Console.WriteLine("=== Your path ===");
+
+    foreach (var step in run.Steps)
+    {
+        var detail = step switch
+        {
+            { Choice: { } choice } => $" (chose: {choice.Label})",
+            { Roll: { } roll } => $" (rolled {roll})",
+            _ => "",
+        };
+        Console.WriteLine($"- {step.Card.Title}{detail}");
+    }
+
+    Console.WriteLine($"- {run.CurrentCard.Title}");
+}

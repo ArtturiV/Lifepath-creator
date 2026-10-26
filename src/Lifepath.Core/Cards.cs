@@ -20,6 +20,8 @@ public sealed record ChoiceOption(string Label, string NextCardId);
 public sealed record DieCard(string Id, string Title, string Text, IReadOnlyList<DieOutcome> Outcomes)
     : Card(Id, Title, Text)
 {
+    public const int Sides = 6;
+
     public string NextCardIdFor(int roll) =>
         Outcomes.FirstOrDefault(o => o.Matches(roll))?.NextCardId
         ?? throw new InvalidOperationException($"Die card '{Id}' has no outcome for a roll of {roll}.");
