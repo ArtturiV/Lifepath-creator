@@ -1,5 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace Lifepath.Core;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(TextCard), "text")]
+[JsonDerivedType(typeof(ChoiceCard), "choice")]
+[JsonDerivedType(typeof(DieCard), "die")]
+[JsonDerivedType(typeof(EndCard), "end")]
 public abstract record Card(string Id, string Title, string Text);
 
 public sealed record TextCard(string Id, string Title, string Text, string NextCardId)
@@ -20,8 +27,8 @@ public sealed record DieCard(string Id, string Title, string Text, IReadOnlyList
 
 public sealed record DieOutcome(int Min, int Max, string NextCardId)
 {
-    // Convenience constructor for a single face, e.g. new DieOutcome(6, "lucky")
-    public DieOutcome(int face, string nextCardId) : this(face, face, nextCardId) { }
+    // Convenience factory for a single face, e.g. DieOutcome.OnFace(6, "lucky")
+    public static DieOutcome OnFace(int face, string nextCardId) => new(face, face, nextCardId);
 
     public bool Matches(int roll) => roll >= Min && roll <= Max;
 }

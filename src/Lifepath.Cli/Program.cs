@@ -1,25 +1,18 @@
-﻿using Lifepath.Core;
+﻿using System.Text.Json;
+using Lifepath.Core;
 
-var lifepath = new LifepathDefinition(
-    title: "Test Lifepath",
-    startCardId: "birth",
-    cards:
-    [
-        new TextCard("birth", "Birth", "You are born under a grey sky.", "family"),
-        new ChoiceCard("family", "Family", "Who raised you?",
-        [
-            new ChoiceOption("Your mother, a fisher", "sea"),
-            new ChoiceOption("Your uncle, a soldier", "war"),
-        ]),
-        new DieCard("sea", "The Sea", "The sea gives and the sea takes.",
-        [
-            new DieOutcome(1, 2, "drowned"),
-            new DieOutcome(3, 6, "adulthood"),
-        ]),
-        new TextCard("war", "War", "You learn to hold a spear before a spoon.", "adulthood"),
-        new EndCard("drowned", "Lost at Sea", "Your story ends beneath the waves."),
-        new EndCard("adulthood", "Adulthood", "You come of age, ready for adventure."),
-    ]);
+var path = args.Length > 0 ? args[0] : "lifepaths/test.json";
+
+LifepathDefinition lifepath;
+try
+{
+    lifepath = LifepathLoader.FromFile(path);
+}
+catch (Exception ex) when (ex is IOException or JsonException)
+{
+    Console.WriteLine($"Could not load '{path}': {ex.Message}");
+    return;
+}
 
 Console.WriteLine($"=== {lifepath.Title} ===");
 Console.WriteLine($"Starts at: {lifepath.StartCard.Title}");
