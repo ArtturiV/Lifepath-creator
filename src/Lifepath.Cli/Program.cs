@@ -6,7 +6,7 @@ var path = args.Length > 0 ? args[0] : "lifepaths/test.json";
 LifepathDefinition lifepath;
 try
 {
-    lifepath = LifepathLoader.FromFile(path);
+    lifepath = LifepathLoader.FromJson(File.ReadAllText(path));
 }
 catch (LifepathValidationException ex)
 {

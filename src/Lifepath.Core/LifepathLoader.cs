@@ -11,8 +11,6 @@ public static class LifepathLoader
         RespectRequiredConstructorParameters = true,
     };
 
-    public static LifepathDefinition FromFile(string path) => FromJson(File.ReadAllText(path));
-
     public static LifepathDefinition FromJson(string json)
     {
         var file = JsonSerializer.Deserialize<LifepathFile>(json, Options)
