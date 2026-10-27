@@ -4,12 +4,15 @@ namespace Lifepath.Core;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(TextCard), "text")]
+[JsonDerivedType(typeof(WriteInCard), "write-in")]
 [JsonDerivedType(typeof(ChoiceCard), "choice")]
 [JsonDerivedType(typeof(DieCard), "die")]
 [JsonDerivedType(typeof(EndCard), "end")]
 public abstract record Card(string Id, string Title, string Text);
 
 public sealed record TextCard(string Id, string Title, string Text, string NextCardId)
+    : Card(Id, Title, Text);
+public sealed record WriteInCard(string Id, string Title, string Text, string NextCardId)
     : Card(Id, Title, Text);
 
 public sealed record ChoiceCard(string Id, string Title, string Text, IReadOnlyList<ChoiceOption> Options)

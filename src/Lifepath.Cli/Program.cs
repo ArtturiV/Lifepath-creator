@@ -38,6 +38,10 @@ while (!run.IsFinished)
             run.Continue();
             break;
 
+        case WriteInCard:
+            run.WriteIn(AskForAnswer());
+            break;
+
         case ChoiceCard choiceCard:
             run.Choose(AskForChoice(choiceCard));
             break;
@@ -72,6 +76,22 @@ void WaitForEnter(string prompt)
 {
     Console.Write(prompt);
     Console.ReadLine();
+}
+
+string AskForAnswer()
+{
+    while (true)
+    {
+        Console.Write("> ");
+        var input = Console.ReadLine();
+
+        if (!string.IsNullOrWhiteSpace(input))
+        {
+            return input;
+        }
+
+        Console.WriteLine("Please write an answer.");
+    }
 }
 
 int AskForChoice(ChoiceCard card)
@@ -125,6 +145,7 @@ void PrintSummary(LifepathRun run)
         {
             { Choice: { } choice } => $" (chose: {choice.Label})",
             { Roll: { } roll } => $" (rolled {roll})",
+            { Answer: { } answer } => $": {answer}",
             _ => "",
         };
         Console.WriteLine($"- {step.Card.Title}{detail}");

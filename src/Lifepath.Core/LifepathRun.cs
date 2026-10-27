@@ -1,6 +1,6 @@
 namespace Lifepath.Core;
 
-public sealed record PathStep(Card Card, ChoiceOption? Choice = null, int? Roll = null);
+public sealed record PathStep(Card Card, ChoiceOption? Choice = null, int? Roll = null, string? Answer = null);
 
 public sealed class LifepathRun
 {
@@ -23,6 +23,14 @@ public sealed class LifepathRun
     {
         var card = Expect<TextCard>();
         Advance(new PathStep(card), card.NextCardId);
+    }
+
+        public void WriteIn(string answer)
+    {
+        var card = Expect<WriteInCard>();
+        ArgumentException.ThrowIfNullOrWhiteSpace(answer);
+
+        Advance(new PathStep(card, Answer: answer.Trim()), card.NextCardId);
     }
 
     public void Choose(int optionIndex)

@@ -1,7 +1,14 @@
 {
   "title": "Test Lifepath",
-  "startCardId": "birth",
+    "startCardId": "name",
   "cards": [
+    {
+      "type": "write-in",
+      "id": "name",
+      "title": "Your Name",
+      "text": "Before your story begins, what are you called?",
+      "nextCardId": "birth"
+    },
     {
       "type": "text",
       "id": "birth",

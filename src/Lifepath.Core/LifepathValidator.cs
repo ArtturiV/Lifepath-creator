@@ -81,6 +81,7 @@ public static class LifepathValidator
     private static IEnumerable<string> LinksOf(Card card) => card switch
     {
         TextCard text => [text.NextCardId],
+        WriteInCard writeIn => [writeIn.NextCardId],
         ChoiceCard choice => choice.Options.Select(option => option.NextCardId),
         DieCard die => die.Outcomes.Select(outcome => outcome.NextCardId),
         _ => [],
