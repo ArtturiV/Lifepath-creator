@@ -1,0 +1,81 @@
+﻿@page "/"
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Lifepath</PageTitle>
+
+<div class="lifepath">
+    @if (errors.Count > 0)
+    {
+        <div class="card error">
+            <h2>Could not load the lifepath</h2>
+            <ul>
+                @foreach (var error in errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+    else if (run is null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <h1>@run.Definition.Title</h1>
+
+        @foreach (var step in run.Steps)
+        {
+            <PastCard Step="step" />
+        }
+
+        <div @ref="activeCardElement">
+            <ActiveCard @key="run.Steps.Count" Run="run" OnAdvanced="HandleAdvanced" />
+        </div>
+
+        @if (run.IsFinished)
+        {
+            <Summary Run="run" />
+            <button @onclick="StartOver">Start over</button>
+        }
+    }
+</div>
+
+@code {
+    private LifepathRun? run;
+    private IReadOnlyList<string> errors = [];
+    private ElementReference activeCardElement;
+    private bool scrollPending;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var json = await Http.GetStringAsync("lifepaths/test.json");
+            run = new LifepathRun(LifepathLoader.FromJson(json));
+        }
+        catch (LifepathValidationException ex)
+        {
+            errors = ex.Errors;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException)
+        {
+            errors = [ex.Message];
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (scrollPending)
+        {
+            scrollPending = false;
+            await JS.InvokeVoidAsync("lifepath.scrollIntoView", activeCardElement);
+        }
+    }
+
+    private void HandleAdvanced() => scrollPending = true;
+
+    private void StartOver() => run = new LifepathRun(run!.Definition);
+}

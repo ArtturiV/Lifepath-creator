@@ -1,0 +1,60 @@
+<article class="card active">
+    <h2>@Run.CurrentCard.Title</h2>
+    <p>@Run.CurrentCard.Text</p>
+
+    @switch (Run.CurrentCard)
+    {
+        case TextCard:
+            <button @onclick="() => Advance(Run.Continue)">Next</button>
+            break;
+
+        case WriteInCard:
+            <form @onsubmit="SubmitAnswer">
+                <input @bind="answer" @bind:event="oninput" placeholder="Your answer" />
+                <button type="submit" disabled="@string.IsNullOrWhiteSpace(answer)">Next</button>
+            </form>
+            break;
+
+        case ChoiceCard choice:
+            <div class="options">
+                @for (var i = 0; i < choice.Options.Count; i++)
+                {
+                    var index = i;
+                    <button @onclick="() => Advance(() => Run.Choose(index))">@choice.Options[index].Label</button>
+                }
+            </div>
+            break;
+
+        case DieCard:
+            <div class="die">
+                <button @onclick="() => Advance(() => Run.Roll())">Roll the die</button>
+                <span>or enter your own roll:</span>
+                <input type="number" min="1" max="@DieCard.Sides" @bind="ownRoll" @bind:event="oninput" />
+                <button disabled="@(ownRoll is not (>= 1 and <= DieCard.Sides))"
+                        @onclick="() => Advance(() => Run.RecordRoll(ownRoll!.Value))">
+                    Use my roll
+                </button>
+            </div>
+            break;
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public LifepathRun Run { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnAdvanced { get; set; }
+
+    private string answer = "";
+    private int? ownRoll;
+
+    private Task Advance(Action action)
+    {
+        action();
+        return OnAdvanced.InvokeAsync();
+    }
+
+    private Task SubmitAnswer() =>
+        string.IsNullOrWhiteSpace(answer) ? Task.CompletedTask : Advance(() => Run.WriteIn(answer));
+}

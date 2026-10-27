@@ -1,0 +1,23 @@
+<section class="card summary">
+    <h2>Your path</h2>
+    <ul>
+        @foreach (var step in Run.Steps)
+        {
+            <li>@step.Card.Title@Detail(step)</li>
+        }
+        <li>@Run.CurrentCard.Title</li>
+    </ul>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public LifepathRun Run { get; set; } = default!;
+
+    private static string Detail(PathStep step) => step switch
+    {
+        { Choice: { } choice } => $" (chose: {choice.Label})",
+        { Roll: { } roll } => $" (rolled {roll})",
+        { Answer: { } answer } => $": {answer}",
+        _ => "",
+    };
+}

@@ -1,0 +1,22 @@
+<article class="card past">
+    <h2>@Step.Card.Title</h2>
+    <p>@Step.Card.Text</p>
+
+    @if (Outcome is not null)
+    {
+        <p class="outcome">@Outcome</p>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public PathStep Step { get; set; } = default!;
+
+    private string? Outcome => Step switch
+    {
+        { Choice: { } choice } => $"You chose: {choice.Label}",
+        { Roll: { } roll } => $"You rolled {roll}.",
+        { Answer: { } answer } => $"Your answer: {answer}",
+        _ => null,
+    };
+}
