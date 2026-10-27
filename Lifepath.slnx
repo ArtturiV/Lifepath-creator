@@ -3,4 +3,7 @@
     <Project Path="src/Lifepath.Cli/Lifepath.Cli.csproj" />
     <Project Path="src/Lifepath.Core/Lifepath.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lifepath.Core.Tests/Lifepath.Core.Tests.csproj" />
+  </Folder>
 </Solution>

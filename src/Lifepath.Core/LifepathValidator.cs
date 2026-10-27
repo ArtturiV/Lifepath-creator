@@ -35,6 +35,13 @@ public static class LifepathValidator
 
         errors.AddRange(brokenLinks);
 
+        var missingTitles =
+            from card in cards
+            where string.IsNullOrWhiteSpace(card.Title)
+            select $"Card '{card.Id}' is missing a title.";
+
+        errors.AddRange(missingTitles);
+
         // Card-specific rules
         foreach (var card in cards)
         {
