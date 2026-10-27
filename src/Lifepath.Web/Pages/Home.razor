@@ -6,24 +6,34 @@
 <PageTitle>Lifepath</PageTitle>
 
 <div class="lifepath">
-    @if (errors.Count > 0)
+    @if (run is null)
     {
-        <div class="card error">
-            <h2>Could not load the lifepath</h2>
-            <ul>
-                @foreach (var error in errors)
-                {
-                    <li>@error</li>
-                }
-            </ul>
+        <h1>Lifepath</h1>
+
+        @if (errors.Count > 0)
+        {
+            <div class="card error">
+                <h2>Could not load @errorSource</h2>
+                <ul>
+                    @foreach (var error in errors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="card">
+            <h2>Choose a lifepath</h2>
+            <p>Import a lifepath file from your computer:</p>
+            <InputFile OnChange="ImportFile" accept=".json" />
+            <p>Or try the example:</p>
+            <button @onclick="PlayExample">Play the example lifepath</button>
         </div>
-    }
-    else if (run is null)
-    {
-        <p>Loading...</p>
     }
     else
     {
+        <button class="link" @onclick="ChooseAnother">&larr; Choose another lifepath</button>
         <h1>@run.Definition.Title</h1>
 
         @foreach (var step in run.Steps)
@@ -39,31 +49,52 @@
         {
             <Summary Run="run" />
             <button @onclick="StartOver">Start over</button>
+            <button @onclick="ChooseAnother">Choose another lifepath</button>
         }
     }
 </div>
 
 @code {
+    private const long MaxFileSize = 1024 * 1024; // 1 MB
+
     private LifepathRun? run;
     private IReadOnlyList<string> errors = [];
+    private string errorSource = "";
     private ElementReference activeCardElement;
     private bool scrollPending;
 
-    protected override async Task OnInitializedAsync()
+    private Task PlayExample() =>
+        LoadAsync("the example lifepath", () => Http.GetStringAsync("lifepaths/test.json"));
+
+    private Task ImportFile(InputFileChangeEventArgs e) =>
+        LoadAsync($"'{e.File.Name}'", () => ReadFileAsync(e.File));
+
+    private async Task LoadAsync(string source, Func<Task<string>> readJson)
     {
+        errors = [];
+
         try
         {
-            var json = await Http.GetStringAsync("lifepaths/test.json");
+            var json = await readJson();
             run = new LifepathRun(LifepathLoader.FromJson(json));
         }
         catch (LifepathValidationException ex)
         {
+            errorSource = source;
             errors = ex.Errors;
         }
-        catch (Exception ex) when (ex is HttpRequestException or JsonException)
+        catch (Exception ex) when (ex is HttpRequestException or IOException or JsonException)
         {
+            errorSource = source;
             errors = [ex.Message];
         }
+    }
+
+    private static async Task<string> ReadFileAsync(IBrowserFile file)
+    {
+        await using var stream = file.OpenReadStream(MaxFileSize);
+        using var reader = new StreamReader(stream);
+        return await reader.ReadToEndAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -78,4 +109,10 @@
     private void HandleAdvanced() => scrollPending = true;
 
     private void StartOver() => run = new LifepathRun(run!.Definition);
+
+    private void ChooseAnother()
+    {
+        run = null;
+        errors = [];
+    }
 }
