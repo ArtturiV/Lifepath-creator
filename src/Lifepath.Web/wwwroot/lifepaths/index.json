@@ -1,0 +1,12 @@
+[
+  {
+    "file": "example.json",
+    "title": "Example Lifepath",
+    "description": "A short example that uses every card type."
+  },
+  {
+    "file": "other.json",
+    "title": "Other Lifepath",
+    "description": "Another example with a different story."
+  }
+]

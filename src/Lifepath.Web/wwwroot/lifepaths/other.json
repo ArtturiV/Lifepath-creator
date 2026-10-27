@@ -1,0 +1,109 @@
+{
+  "title": "Test Lifepath",
+    "startCardId": "birth",
+  "cards": [
+    {
+      "type": "die",
+      "id": "birth",
+      "title": "Birth",
+      "text": "What role were you born into?",
+      "outcomes": [
+        { "min": 1, "max": 1, "nextCardId": "orphan" },
+        { "min": 2, "max": 2, "nextCardId": "farmer" },
+        { "min": 3, "max": 3, "nextCardId": "laborer" },
+        { "min": 4, "max": 4, "nextCardId": "artisan" },
+        { "min": 5, "max": 5, "nextCardId": "servant" },
+        { "min": 6, "max": 6, "nextCardId": "clergy" }
+      ]
+    },
+    {
+      "type": "choice",
+      "id": "orphan",
+      "title": "Orphan",
+      "text": "Where did you live?",
+      "options": [
+        { "label": "In the streets", "nextCardId": "beggar" },
+        { "label": "In the woods", "nextCardId": "wildling" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "beggar",
+      "title": "Beggar",
+      "text": "You begged on the streets for scraps.",
+      "nextCardId": "pity"
+    },
+    {
+      "type": "text",
+      "id": "wildling",
+      "title": "Wildling",
+      "text": "You lived in the woods.",
+      "nextCardId": "pity"
+    },
+    {
+      "type": "die",
+      "id": "pity",
+      "title": "Pity",
+      "text": "Who took you in?",
+      "outcomes": [
+        { "min": 1, "max": 2, "nextCardId": "smith" },
+        { "min": 3, "max": 6, "nextCardId": "crown" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "smith",
+      "title": "Smith",
+      "text": "A smith taught you the trade.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "crown",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "laborer",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "artisan",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "servant",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "clergy",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "text",
+      "id": "farmer",
+      "title": "Crown",
+      "text": "You were taken in by the crown.",
+      "nextCardId": "king"
+    },
+    {
+      "type": "end",
+      "id": "king",
+      "title": "The king is dead",
+      "text": "The young prince has summoned you."
+    }
+  ]
+}

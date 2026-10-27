@@ -1,0 +1,108 @@
+@using System.Text.Json
+@inject HttpClient Http
+
+@if (errors.Count > 0)
+{
+    <div class="card error">
+        <h2>Could not load @errorSource</h2>
+        <ul>
+            @foreach (var error in errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="card">
+    <h2>Bundled lifepaths</h2>
+
+    @if (indexError is not null)
+    {
+        <p>@indexError</p>
+    }
+    else if (bundled is null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <ul class="bundled">
+            @foreach (var entry in bundled)
+            {
+                <li>
+                    <button @onclick="() => PlayBundled(entry)">@entry.Title</button>
+                    <p>@entry.Description</p>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+<div class="card">
+    <h2>Import your own</h2>
+    <p>Load a lifepath file from your computer:</p>
+    <InputFile OnChange="ImportFile" accept=".json" />
+</div>
+
+@code {
+    private const long MaxFileSize = 1024 * 1024; // 1 MB
+
+    [Parameter, EditorRequired]
+    public EventCallback<LifepathDefinition> OnLoaded { get; set; }
+
+    private IReadOnlyList<BundledLifepath>? bundled;
+    private string? indexError;
+    private IReadOnlyList<string> errors = [];
+    private string errorSource = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            bundled = await Http.GetFromJsonAsync<BundledLifepath[]>("lifepaths/index.json") ?? [];
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException)
+        {
+            indexError = $"Could not load the list of bundled lifepaths: {ex.Message}";
+        }
+    }
+
+    private Task PlayBundled(BundledLifepath entry) =>
+        LoadAsync($"'{entry.Title}'", () => Http.GetStringAsync($"lifepaths/{entry.File}"));
+
+    private Task ImportFile(InputFileChangeEventArgs e) =>
+        LoadAsync($"'{e.File.Name}'", () => ReadFileAsync(e.File));
+
+    private async Task LoadAsync(string source, Func<Task<string>> readJson)
+    {
+        errors = [];
+        LifepathDefinition lifepath;
+
+        try
+        {
+            lifepath = LifepathLoader.FromJson(await readJson());
+        }
+        catch (LifepathValidationException ex)
+        {
+            errorSource = source;
+            errors = ex.Errors;
+            return;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or JsonException)
+        {
+            errorSource = source;
+            errors = [ex.Message];
+            return;
+        }
+
+        await OnLoaded.InvokeAsync(lifepath);
+    }
+
+    private static async Task<string> ReadFileAsync(IBrowserFile file)
+    {
+        await using var stream = file.OpenReadStream(MaxFileSize);
+        using var reader = new StreamReader(stream);
+        return await reader.ReadToEndAsync();
+    }
+}

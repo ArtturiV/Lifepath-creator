@@ -1,6 +1,4 @@
 ﻿@page "/"
-@using System.Text.Json
-@inject HttpClient Http
 @inject IJSRuntime JS
 
 <PageTitle>Lifepath</PageTitle>
@@ -9,27 +7,7 @@
     @if (run is null)
     {
         <h1>Lifepath</h1>
-
-        @if (errors.Count > 0)
-        {
-            <div class="card error">
-                <h2>Could not load @errorSource</h2>
-                <ul>
-                    @foreach (var error in errors)
-                    {
-                        <li>@error</li>
-                    }
-                </ul>
-            </div>
-        }
-
-        <div class="card">
-            <h2>Choose a lifepath</h2>
-            <p>Import a lifepath file from your computer:</p>
-            <InputFile OnChange="ImportFile" accept=".json" />
-            <p>Or try the example:</p>
-            <button @onclick="PlayExample">Play the example lifepath</button>
-        </div>
+        <LifepathPicker OnLoaded="Start" />
     }
     else
     {
@@ -55,47 +33,11 @@
 </div>
 
 @code {
-    private const long MaxFileSize = 1024 * 1024; // 1 MB
-
     private LifepathRun? run;
-    private IReadOnlyList<string> errors = [];
-    private string errorSource = "";
     private ElementReference activeCardElement;
     private bool scrollPending;
 
-    private Task PlayExample() =>
-        LoadAsync("the example lifepath", () => Http.GetStringAsync("lifepaths/test.json"));
-
-    private Task ImportFile(InputFileChangeEventArgs e) =>
-        LoadAsync($"'{e.File.Name}'", () => ReadFileAsync(e.File));
-
-    private async Task LoadAsync(string source, Func<Task<string>> readJson)
-    {
-        errors = [];
-
-        try
-        {
-            var json = await readJson();
-            run = new LifepathRun(LifepathLoader.FromJson(json));
-        }
-        catch (LifepathValidationException ex)
-        {
-            errorSource = source;
-            errors = ex.Errors;
-        }
-        catch (Exception ex) when (ex is HttpRequestException or IOException or JsonException)
-        {
-            errorSource = source;
-            errors = [ex.Message];
-        }
-    }
-
-    private static async Task<string> ReadFileAsync(IBrowserFile file)
-    {
-        await using var stream = file.OpenReadStream(MaxFileSize);
-        using var reader = new StreamReader(stream);
-        return await reader.ReadToEndAsync();
-    }
+    private void Start(LifepathDefinition definition) => run = new LifepathRun(definition);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -110,9 +52,5 @@
 
     private void StartOver() => run = new LifepathRun(run!.Definition);
 
-    private void ChooseAnother()
-    {
-        run = null;
-        errors = [];
-    }
+    private void ChooseAnother() => run = null;
 }

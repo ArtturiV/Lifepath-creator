@@ -22,4 +22,10 @@
     <ProjectReference Include="..\..\src\Lifepath.Core\Lifepath.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\src\Lifepath.Web\wwwroot\lifepaths\*.json"
+          Link="BundledLifepaths\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  
 </Project>

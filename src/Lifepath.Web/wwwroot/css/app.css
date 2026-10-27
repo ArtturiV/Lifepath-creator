@@ -163,3 +163,16 @@ button.link {
 .lifepath > button {
     margin-right: 0.5rem;
 }
+
+.bundled {
+    list-style: none;
+    padding: 0;
+}
+
+.bundled li {
+    margin-bottom: 1rem;
+}
+
+.bundled p {
+    margin: 0.25rem 0 0;
+}

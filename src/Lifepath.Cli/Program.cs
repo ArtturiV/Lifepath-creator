@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Lifepath.Core;
 
-var path = args.Length > 0 ? args[0] : "lifepaths/test.json";
+var path = args.Length > 0 ? args[0] : "src/Lifepath.Web/wwwroot/lifepaths/example.json";
 
 LifepathDefinition lifepath;
 try
