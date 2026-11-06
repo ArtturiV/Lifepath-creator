@@ -46,7 +46,8 @@ while (!run.IsFinished)
             run.Choose(AskForChoice(choiceCard));
             break;
 
-        case DieCard:
+        case DieCard dieCard:
+            PrintOutcomes(dieCard, lifepath);
             if (AskForOwnRoll() is int ownRoll)
             {
                 run.RecordRoll(ownRoll);
@@ -152,4 +153,23 @@ void PrintSummary(LifepathRun run)
     }
 
     Console.WriteLine($"- {run.CurrentCard.Title}");
+}
+
+void PrintOutcomes(DieCard card, LifepathDefinition lifepath)
+{
+    var outcomes = card.Outcomes.OrderBy(outcome => outcome.Min);
+
+    switch (card.Visibility)
+    {
+        case OutcomeVisibility.Ranges:
+            Console.WriteLine($"Outcomes: {string.Join("  |  ", outcomes.Select(outcome => outcome.RangeText))}");
+            break;
+
+        case OutcomeVisibility.Results:
+            foreach (var outcome in outcomes)
+            {
+                Console.WriteLine($"  {outcome.RangeText}: {lifepath.GetCard(outcome.NextCardId).Title}");
+            }
+            break;
+    }
 }

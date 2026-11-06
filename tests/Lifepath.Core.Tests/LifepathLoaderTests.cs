@@ -104,14 +104,43 @@ public class LifepathLoaderTests
         Assert.Contains("needs either \"roll\" or both \"min\" and \"max\"", exception.Message);
     }
 
-    private static string LifepathWithOutcomes(string outcomesJson) => $$"""
-        {
-          "title": "T",
-          "startCardId": "die",
-          "cards": [
-            { "type": "die", "id": "die", "title": "Die", "text": "", "outcomes": [ {{outcomesJson}} ] },
-            { "type": "end", "id": "end", "title": "End", "text": "" }
-          ]
-        }
-        """;
+    private static string LifepathWithOutcomes(string outcomesJson, string? visibilityJson = null)
+    {
+        var visibility = visibilityJson is null ? "" : $"\"visibility\": {visibilityJson},";
+
+        return $$"""
+            {
+              "title": "T",
+              "startCardId": "die",
+              "cards": [
+                { "type": "die", "id": "die", "title": "Die", "text": "", {{visibility}} "outcomes": [ {{outcomesJson}} ] },
+                { "type": "end", "id": "end", "title": "End", "text": "" }
+              ]
+            }
+            """;
+    }
+    private const string OneOutcome = """{ "min": 1, "max": 6, "nextCardId": "end" }""";
+
+    [Theory]
+    [InlineData("\"hidden\"", OutcomeVisibility.Hidden)]
+    [InlineData("\"ranges\"", OutcomeVisibility.Ranges)]
+    [InlineData("\"results\"", OutcomeVisibility.Results)]
+    [InlineData(null, OutcomeVisibility.Hidden)]
+    public void FromJson_ReadsDieVisibility(string? visibilityJson, OutcomeVisibility expected)
+    {
+        var lifepath = LifepathLoader.FromJson(LifepathWithOutcomes(OneOutcome, visibilityJson));
+
+        var die = Assert.IsType<DieCard>(lifepath.GetCard("die"));
+        Assert.Equal(expected, die.Visibility);
+    }
+
+    [Theory]
+    [InlineData("\"result\"")]
+    [InlineData("2")]
+    public void FromJson_InvalidDieVisibility_Throws(string visibilityJson)
+    {
+        var json = LifepathWithOutcomes(OneOutcome, visibilityJson);
+
+        Assert.ThrowsAny<JsonException>(() => LifepathLoader.FromJson(json));
+    }
 }

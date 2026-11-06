@@ -1,0 +1,23 @@
+@if (Card.Visibility != OutcomeVisibility.Hidden)
+{
+    <ul class="outcomes @Card.Visibility.ToString().ToLowerInvariant()">
+        @foreach (var outcome in Card.Outcomes.OrderBy(outcome => outcome.Min))
+        {
+            <li>
+                <span class="range">@outcome.RangeText</span>
+                @if (Card.Visibility == OutcomeVisibility.Results)
+                {
+                    <span>@Definition.GetCard(outcome.NextCardId).Title</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public DieCard Card { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public LifepathDefinition Definition { get; set; } = default!;
+}

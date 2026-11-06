@@ -176,3 +176,31 @@ button.link {
 .bundled p {
     margin: 0.25rem 0 0;
 }
+
+.outcomes {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+}
+
+.outcomes.ranges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.outcomes.ranges li {
+    border: 1px solid #d8cfc0;
+    border-radius: 4px;
+    padding: 0.1rem 0.6rem;
+}
+
+.outcomes.results li {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.outcomes .range {
+    min-width: 2.5rem;
+    font-weight: bold;
+}

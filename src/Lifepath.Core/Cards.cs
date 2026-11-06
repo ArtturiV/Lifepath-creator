@@ -20,7 +20,12 @@ public sealed record ChoiceCard(string Id, string Title, string Text, IReadOnlyL
 
 public sealed record ChoiceOption(string Label, string NextCardId);
 
-public sealed record DieCard(string Id, string Title, string Text, IReadOnlyList<DieOutcome> Outcomes)
+public sealed record DieCard(
+    string Id,
+    string Title,
+    string Text,
+    IReadOnlyList<DieOutcome> Outcomes,
+    OutcomeVisibility Visibility = OutcomeVisibility.Hidden)
     : Card(Id, Title, Text)
 {
     public const int Sides = 6;
@@ -28,6 +33,7 @@ public sealed record DieCard(string Id, string Title, string Text, IReadOnlyList
     public string NextCardIdFor(int roll) =>
         Outcomes.FirstOrDefault(o => o.Matches(roll))?.NextCardId
         ?? throw new InvalidOperationException($"Die card '{Id}' has no outcome for a roll of {roll}.");
+    
 }
 
 public sealed record DieOutcome(int Min, int Max, string NextCardId)
@@ -36,7 +42,16 @@ public sealed record DieOutcome(int Min, int Max, string NextCardId)
     public static DieOutcome OnFace(int face, string nextCardId) => new(face, face, nextCardId);
 
     public bool Matches(int roll) => roll >= Min && roll <= Max;
+
+    public string RangeText => Min == Max ? $"{Min}" : $"{Min}-{Max}";
 }
 
 public sealed record EndCard(string Id, string Title, string Text)
     : Card(Id, Title, Text);
+
+public enum OutcomeVisibility
+{
+    Hidden,
+    Ranges,
+    Results,
+}

@@ -25,7 +25,8 @@
             </div>
             break;
 
-        case DieCard:
+        case DieCard die:
+            <DieOutcomes Card="die" Definition="Run.Definition" />
             <div class="die">
                 <button @onclick="() => Advance(() => Run.Roll())">Roll the die</button>
                 <span>or enter your own roll:</span>

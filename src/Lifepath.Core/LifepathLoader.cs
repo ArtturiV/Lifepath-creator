@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Lifepath.Core;
 
@@ -9,7 +10,11 @@ public static class LifepathLoader
         AllowOutOfOrderMetadataProperties = true,
         RespectNullableAnnotations = true,
         RespectRequiredConstructorParameters = true,
-        Converters = { new DieOutcomeJsonConverter() },
+        Converters =
+        {
+            new DieOutcomeJsonConverter(),
+            new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false),
+        },
     };
 
     public static LifepathDefinition FromJson(string json)

@@ -7,6 +7,7 @@
       "id": "birth",
       "title": "Birth",
       "text": "What role were you born into?",
+      "visibility": "Ranges",
       "outcomes": [
         { "roll": 1, "nextCardId": "orphan" },
         { "min": 2, "max": 2, "nextCardId": "farmer" },
