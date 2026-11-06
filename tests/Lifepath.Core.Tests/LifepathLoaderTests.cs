@@ -77,4 +77,41 @@ public class LifepathLoaderTests
 
         Assert.Contains(exception.Errors, error => error.Contains("links to 'missing'"));
     }
+    [Fact]
+    public void FromJson_DieOutcomeAcceptsRollShorthand()
+    {
+        var json = LifepathWithOutcomes("""
+            { "roll": 1, "nextCardId": "end" },
+            { "min": 2, "max": 6, "nextCardId": "end" }
+            """);
+
+        var lifepath = LifepathLoader.FromJson(json);
+
+        var die = Assert.IsType<DieCard>(lifepath.GetCard("die"));
+        Assert.Equal([new DieOutcome(1, 1, "end"), new DieOutcome(2, 6, "end")], die.Outcomes);
+    }
+
+    [Theory]
+    [InlineData("""{ "roll": 1, "min": 1, "max": 6, "nextCardId": "end" }""")]
+    [InlineData("""{ "min": 1, "nextCardId": "end" }""")]
+    [InlineData("""{ "max": 6, "nextCardId": "end" }""")]
+    [InlineData("""{ "nextCardId": "end" }""")]
+    public void FromJson_InvalidDieOutcomeShape_Throws(string outcome)
+    {
+        var json = LifepathWithOutcomes(outcome);
+
+        var exception = Assert.ThrowsAny<JsonException>(() => LifepathLoader.FromJson(json));
+        Assert.Contains("needs either \"roll\" or both \"min\" and \"max\"", exception.Message);
+    }
+
+    private static string LifepathWithOutcomes(string outcomesJson) => $$"""
+        {
+          "title": "T",
+          "startCardId": "die",
+          "cards": [
+            { "type": "die", "id": "die", "title": "Die", "text": "", "outcomes": [ {{outcomesJson}} ] },
+            { "type": "end", "id": "end", "title": "End", "text": "" }
+          ]
+        }
+        """;
 }

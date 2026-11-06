@@ -9,6 +9,7 @@ public static class LifepathLoader
         AllowOutOfOrderMetadataProperties = true,
         RespectNullableAnnotations = true,
         RespectRequiredConstructorParameters = true,
+        Converters = { new DieOutcomeJsonConverter() },
     };
 
     public static LifepathDefinition FromJson(string json)
