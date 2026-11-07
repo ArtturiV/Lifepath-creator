@@ -68,7 +68,8 @@ while (!run.IsFinished)
     }
 }
 
-PrintSummary(run);
+Console.WriteLine();
+Console.Write(LifepathSummary.From(run).ToText());
 
 void PrintCard(Card card)
 {
@@ -137,25 +138,6 @@ int? AskForOwnRoll()
 
         Console.WriteLine($"Please enter a number between 1 and {DieCard.Sides}, or just press Enter.");
     }
-}
-
-void PrintSummary(LifepathRun run)
-{
-    Console.WriteLine();
-    Console.WriteLine("=== Your path ===");
-
-    foreach (var step in run.Steps)
-    {
-        var detail = step switch
-        {
-            { Choice: { } choice } => $" (chose: {choice.Label})",
-            { Roll: { } roll } => $" (rolled {roll})",
-            { Answer: { } answer } => $": {answer}",
-            _ => "",
-        };
-    }
-
-    Console.WriteLine($"- {run.CurrentCard.Title}");
 }
 
 void PrintOutcomes(DieCard card, LifepathDefinition lifepath)

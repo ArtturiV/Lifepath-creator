@@ -204,3 +204,22 @@ button.link {
     min-width: 2.5rem;
     font-weight: bold;
 }
+
+.summary h3 {
+    margin-bottom: 0.5rem;
+}
+
+.summary dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0;
+}
+
+.summary dt {
+    font-weight: bold;
+}
+
+.summary dd {
+    margin: 0;
+}

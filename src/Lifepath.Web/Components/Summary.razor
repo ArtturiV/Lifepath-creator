@@ -1,22 +1,44 @@
+@inject IJSRuntime JS
+
 <section class="card summary">
-    <h2>Your path</h2>
-    <ul>
-        @foreach (var step in Run.Steps)
-        {
-            <li>@step.Card.Title@Detail(step)</li>
-        }
-    </ul>
+    <h2>Summary</h2>
+
+    @foreach (var section in summary.Sections)
+    {
+        <h3>@section.Heading</h3>
+        <dl>
+            @foreach (var entry in section.Entries)
+            {
+                <dt>@entry.Label</dt>
+                <dd>@entry.Value</dd>
+            }
+        </dl>
+    }
+
+    <p><strong>Ending:</strong> @summary.Ending</p>
+
+    <button @onclick="CopyToClipboard">@copyLabel</button>
 </section>
 
 @code {
     [Parameter, EditorRequired]
     public LifepathRun Run { get; set; } = default!;
 
-    private static string Detail(PathStep step) => step switch
+    private LifepathSummary summary = default!;
+    private string copyLabel = "Copy as text";
+
+    protected override void OnParametersSet() => summary = LifepathSummary.From(Run);
+
+    private async Task CopyToClipboard()
     {
-        { Choice: { } choice } => $" (chose: {choice.Label})",
-        { Roll: { } roll } => $" (rolled {roll})",
-        { Answer: { } answer } => $": {answer}",
-        _ => "",
-    };
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", summary.ToText());
+            copyLabel = "Copied!";
+        }
+        catch (JSException)
+        {
+            copyLabel = "Could not copy";
+        }
+    }
 }
