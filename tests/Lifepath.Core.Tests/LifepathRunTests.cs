@@ -111,8 +111,31 @@ public class LifepathRunTests
         run.Choose(0);
         run.Roll();
 
+        Assert.IsType<EndCard>(run.CurrentCard);
+        Assert.False(run.IsFinished);
+
+        run.Finish();
+
         Assert.True(run.IsFinished);
-        Assert.Equal("low", run.CurrentCard.Id);
-        Assert.Equal(new[] { "name", "intro", "choice", "die" }, run.Steps.Select(step => step.Card.Id));
+        Assert.Equal(new[] { "name", "intro", "choice", "die", "low" }, run.Steps.Select(step => step.Card.Id));
+    }
+
+    [Fact]
+    public void Finish_OnNonEndCard_Throws()
+    {
+        var run = new LifepathRun(TestLifepaths.Create("intro"));
+
+        Assert.Throws<InvalidOperationException>(() => run.Finish());
+        Assert.False(run.IsFinished);
+    }
+
+    [Fact]
+    public void Finish_Twice_Throws()
+    {
+        var run = new LifepathRun(TestLifepaths.Create("end"));
+        run.Finish();
+
+        Assert.Throws<InvalidOperationException>(() => run.Finish());
+        Assert.Single(run.Steps);
     }
 }

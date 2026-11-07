@@ -58,12 +58,16 @@ while (!run.IsFinished)
             }
             break;
 
+        case EndCard:
+            WaitForEnter("[Press Enter to finish]");
+            run.Finish();
+            break;
+
         default:
             throw new InvalidOperationException($"Unknown card type: {run.CurrentCard.GetType().Name}");
     }
 }
 
-PrintCard(run.CurrentCard);
 PrintSummary(run);
 
 void PrintCard(Card card)
@@ -149,7 +153,6 @@ void PrintSummary(LifepathRun run)
             { Answer: { } answer } => $": {answer}",
             _ => "",
         };
-        Console.WriteLine($"- {step.Card.Title}{detail}");
     }
 
     Console.WriteLine($"- {run.CurrentCard.Title}");

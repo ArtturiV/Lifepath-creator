@@ -19,22 +19,24 @@
             <PastCard Step="step" />
         }
 
-        <div @ref="activeCardElement">
-            <ActiveCard @key="run.Steps.Count" Run="run" OnAdvanced="HandleAdvanced" />
+        <div @ref="latestElement">
+            @if (!run.IsFinished)
+            {
+                <ActiveCard @key="run.Steps.Count" Run="run" OnAdvanced="HandleAdvanced" />
+            }
+            else
+            {
+                <Summary Run="run" />
+                <button @onclick="StartOver">Start over</button>
+                <button @onclick="ChooseAnother">Choose another lifepath</button>
+            }
         </div>
-
-        @if (run.IsFinished)
-        {
-            <Summary Run="run" />
-            <button @onclick="StartOver">Start over</button>
-            <button @onclick="ChooseAnother">Choose another lifepath</button>
-        }
     }
 </div>
 
 @code {
     private LifepathRun? run;
-    private ElementReference activeCardElement;
+    private ElementReference latestElement;
     private bool scrollPending;
 
     private void Start(LifepathDefinition definition) => run = new LifepathRun(definition);
@@ -44,7 +46,7 @@
         if (scrollPending)
         {
             scrollPending = false;
-            await JS.InvokeVoidAsync("lifepath.scrollIntoView", activeCardElement);
+            await JS.InvokeVoidAsync("lifepath.scrollIntoView", latestElement);
         }
     }
 

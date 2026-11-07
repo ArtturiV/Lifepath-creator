@@ -17,7 +17,7 @@ public sealed class LifepathRun
     public LifepathDefinition Definition { get; }
     public Card CurrentCard { get; private set; }
     public IReadOnlyList<PathStep> Steps => _steps;
-    public bool IsFinished => CurrentCard is EndCard;
+    public bool IsFinished { get; private set; }
 
     public void Continue()
     {
@@ -62,7 +62,17 @@ public sealed class LifepathRun
 
         Advance(new PathStep(card, Roll: roll), card.NextCardIdFor(roll));
     }
+    public void Finish()
+    {
+        if (IsFinished)
+        {
+            throw new InvalidOperationException("The lifepath is already finished.");
+        }
 
+        var card = Expect<EndCard>();
+        _steps.Add(new PathStep(card));
+        IsFinished = true;
+    }
     private T Expect<T>() where T : Card =>
         CurrentCard as T
         ?? throw new InvalidOperationException(
